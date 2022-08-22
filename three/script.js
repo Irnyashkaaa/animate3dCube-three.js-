@@ -5,7 +5,7 @@ window.onload = () => {
 
     const canvas = document.getElementById('canvas')
 
-    canvas.setAttribute('width', width)
+    canvas.setAttribute('width', width/2 + 100)
     canvas.setAttribute('height', height)
 
     const scene = new THREE.Scene()
@@ -15,7 +15,7 @@ window.onload = () => {
     renderer.setClearColor(0x000000)
 
 
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 5000)
+    const camera = new THREE.PerspectiveCamera(45, (width/2 + 100) / (height), 0.1, 5000)
     camera.position.set(-160, 270, 1000)
 
     const createLight = (x, y, z) => {
@@ -32,7 +32,7 @@ window.onload = () => {
 
     const bigCubeGroup = new THREE.Group()
     const createCube = (x, y, z) => {
-        const cubeGeometry = new THREE.RoundedBoxGeometry(100, 100, 100, 10, 5)
+        const cubeGeometry = new THREE.RoundedBoxGeometry(110, 110, 110, 10, 5)
         const cubeMaterial = new THREE.MeshPhysicalMaterial({ transparent: true, opacity: 0.8, color: 0x666666})
         const cubeMesh = new THREE.Mesh(cubeGeometry, cubeMaterial)
         cubeMesh.position.set(x, y, z)
@@ -40,14 +40,14 @@ window.onload = () => {
         let smallY = y
         let smallX = x
         let smallZ = z
-        y === 450 ? smallY = 400
-            : y === 150 ? smallY = 200
+        y === 540 ? smallY = 480
+            : y === 180 ? smallY = 240
                 : smallY;
-        x === 50 ? smallX = 100
-            : x === 350 ? smallX = 300
+        x === 60 ? smallX = 120
+            : x === 420 ? smallX = 360
                 : smallX
-        z === 0 ? smallZ = 50
-            : z === 300 ? smallZ = 250
+        z === 0 ? smallZ = 60
+            : z === 360 ? smallZ = 300
                 : smallZ
 
 
@@ -57,23 +57,23 @@ window.onload = () => {
         })
     }
 
-    for (let y = 150; y <= 450; y += 150) {
-        for (let k = 50; k <= 350; k += 150) {
+    for (let y = 180; y <= 540; y += 180) {
+        for (let k = 60; k <= 420; k += 180) {
             createCube(k, y, 0)
-            if (k === 200 && y === 300) {
+            if (k === 240 && y === 360) {
                 const sphereGeometry = new THREE.SphereBufferGeometry(100, 20, 20)
-                const sphereMaterial = new THREE.MeshLambertMaterial( { color: 0xdddddd } ) 
+                const sphereMaterial = new THREE.MeshLambertMaterial( { color: 0xdddddd, emissive: 0x9900FF } ) 
                 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
-                sphere.position.set(k, y, 150)
+                sphere.position.set(k, y, 180)
                 bigCubeGroupArray.push({
-                    bigPosition: { x: k, y: y, z: 150 },
-                    smallPosition: { x: k, y: 300, z: 150 }
+                    bigPosition: { x: k, y: y, z: 180 },
+                    smallPosition: { x: k, y: y, z: 180 }
                 })
                 bigCubeGroup.add(sphere)
             } else {
-                createCube(k, y, 150)
+                createCube(k, y, 180)
             }
-            createCube(k, y, 300)
+            createCube(k, y, 360)
 
         }
     }
@@ -82,7 +82,7 @@ window.onload = () => {
     bigCubeGroup.rotation.x = 0.4
     bigCubeGroup.position.z = -350
     bigCubeGroup.position.y = 70
-    bigCubeGroup.position.x = 70
+    bigCubeGroup.position.x = -310
     scene.add(bigCubeGroup)
 
     let cubeDo = 'small'
@@ -105,16 +105,18 @@ window.onload = () => {
             for (let i = 0; i < bigCubeGroupArray.length; i++) {
                 changeCubePosition(i, cubeDo)
             }
-            if (Math.round(bigCubeGroup.children[0].position.x) === bigCubeGroupArray[0].smallPosition.x) {
+            if (Math.ceil(bigCubeGroup.children[0].position.x) === bigCubeGroupArray[0].smallPosition.x) {
                 cubeDo = ''
                 setTimeout(() => cubeDo = 'random', 1000)
             }
         } else if ( cubeDo === 'big') {
+            createRandomCubesArray()
+
             for (let i = 0; i < bigCubeGroupArray.length; i++) {
                 changeCubePosition(i, cubeDo)
             }
 
-            if (Math.round(bigCubeGroup.children[0].position.x) === bigCubeGroupArray[0].bigPosition.x) {
+            if (Math.ceil(bigCubeGroup.children[0].position.x) === bigCubeGroupArray[0].bigPosition.x) {
                 cubeDo = ''
                 setTimeout(() => cubeDo = 'small', 1000)
             }
@@ -122,7 +124,7 @@ window.onload = () => {
             bigCubeGroup.children.map((currentCube, i) => {
                 randomCubes.includes(i) ? changeCubePosition(i, 'big') : ''
             })
-            if (Math.round(bigCubeGroup.children[randomCubes[0]].position.x) === bigCubeGroupArray[randomCubes[0]].bigPosition.x) {
+            if (Math.ceil(bigCubeGroup.children[randomCubes[0]].position.x) === bigCubeGroupArray[randomCubes[0]].bigPosition.x) {
                 cubeDo = ''
                 setTimeout (() => cubeDo = 'randomReverse', 1000)
             }
@@ -132,10 +134,9 @@ window.onload = () => {
                 randomCubes.includes(i) ? changeCubePosition(i, 'small') : changeCubePosition(i, 'big')
             })
 
-            if (Math.round(bigCubeGroup.children[randomCubes[0]].position.x) === bigCubeGroupArray[randomCubes[0]].smallPosition.x) {
-                randomCubes.length = 1
-                createRandomCubesArray()
-                cubeDo = 'big'
+            if (Math.ceil(bigCubeGroup.children[randomCubes[0]].position.x) === bigCubeGroupArray[randomCubes[0]].smallPosition.x) {
+                cubeDo = ''
+                setTimeout(() => {cubeDo = 'big'}, 1000)
             }
         }
 
@@ -157,24 +158,28 @@ window.onload = () => {
         }
 
         if (cubeCurrentPosition.x <= position.x) {
-            cubeCurrentPosition.x += 1
+            cubeCurrentPosition.x += 1.8
         } else if (cubeCurrentPosition.x > position.x) {
-            cubeCurrentPosition.x -= 1
+            cubeCurrentPosition.x -= 1.8
         }
         if (cubeCurrentPosition.y <= position.y) {
-            cubeCurrentPosition.y += 1
+            cubeCurrentPosition.y += 1.8
         } else if (cubeCurrentPosition.y > position.y) {
-            cubeCurrentPosition.y -= 1
+            cubeCurrentPosition.y -= 1.8
         }
         if (cubeCurrentPosition.z <= position.z) {
-            cubeCurrentPosition.z += 1
+            cubeCurrentPosition.z += 1.8
         } else if (cubeCurrentPosition.z > position.z) {
-            cubeCurrentPosition.z -= 1
+            cubeCurrentPosition.z -= 1.8
         }
 
     }
 
     const animate = () => {
+
+        bigCubeGroup.rotation.y += 0.0003
+        
+        
         setAllCubePosition()
         renderer.render(scene, camera)
         requestAnimationFrame(function () { animate() })
